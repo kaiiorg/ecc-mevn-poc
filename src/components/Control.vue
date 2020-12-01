@@ -6,7 +6,11 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>Direction:</label> &nbsp;
-            <toggle-button v-model="post.forward" :width="75" :labels="{checked: 'Forward', unchecked: 'Backward'}" />
+            <toggle-button
+              v-model="post.forward"
+              :width="75"
+              :labels="{ checked: 'Forward', unchecked: 'Backward' }"
+            />
           </div>
         </div>
       </div>
@@ -23,6 +27,24 @@
         <button class="btn btn-primary">Send</button>
       </div>
     </form>
+
+    <h2>Telemetry</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Direction:</label> &nbsp;
+          {{ telemetry.forward ? 'Forward' : 'Backward' }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Throttle:</label> &nbsp;
+          {{ telemetry.throttle }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -31,16 +53,26 @@ export default {
   data() {
     return {
       post: {},
+      telemetry: {
+        forward: false,
+        throttle: 0,
+      },
     };
   },
   methods: {
     updateLoco() {
-      console.log(this.post);
-      let uri = 'http://localhost:4000/api/throttle';
-      this.axios.post(uri, this.post).then((res) => {
-        console.log(res);
+      // These should get pulled from a config file later
+      let throttleUri = "http://localhost:4000/api/throttle";
+      let telemetryUri = "http://localhost:4000/api/telemetry";
+
+      this.axios.post(throttleUri, this.post).then(() => {
+        this.axios.get(telemetryUri).then((currentTelemetry) => {
+          this.telemetry.forward = currentTelemetry.data.forward;
+          this.telemetry.throttle = currentTelemetry.data.throttle;
+          console.log(this.telemetry);
+        });
       });
-    }
+    },
   },
 };
 </script>

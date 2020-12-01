@@ -21,11 +21,15 @@ postRoutes.route('/throttle').post(function (req, res) {
 
 // Route for telemetry (just the current throttle setting, for now)
 postRoutes.route('/telemetry').get(function(req, res) {
-  Post.find(function(err, currentValues) {
+  Post.findOne().sort({_id: -1}).exec(function(err, currentValues) {
     if (err) {
       res.json(err);
     } else {
-      res.json(currentValues);
+      // Probably not the best way to do this, but I don't want to send the ID or any other information
+      res.json({
+        "forward": currentValues.forward,
+        "throttle": currentValues.throttle
+      });
     }
   });
 });
